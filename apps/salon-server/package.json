@@ -1,0 +1,8 @@
+{
+  "name": "@cave/salon-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": { "start": "node server.mjs", "test": "node --test --test-concurrency=1 database-storage.test.mjs payment-allocation.test.mjs pricing.unit.test.mjs server.test.mjs server.fulltest.mjs server.logic.test.mjs server.pricing.test.mjs server.qa-fixes.test.mjs" },
+  "dependencies": { "express": "^5.1.0", "sql.js": "^1.13.0" }
+}

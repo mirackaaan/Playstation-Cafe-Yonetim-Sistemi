@@ -1,0 +1,15 @@
+[package]
+name = "cave-salon-desktop"
+version = "0.1.0"
+description = "Cave PlayStation salon yönetimi"
+authors = ["Cave"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0" }
+
+[dependencies]
+tauri = { version = "2.2", features = [] }
+serde = { version = "1", features = ["derive"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+chrono = { version = "0.4", features = ["serde"] }

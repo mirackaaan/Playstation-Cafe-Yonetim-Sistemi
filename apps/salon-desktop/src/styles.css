@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base { body { @apply m-0 bg-slate-950 font-sans antialiased; } button, input { font: inherit; } }
+@layer components { .action-button { @apply rounded-lg px-4 py-2 text-sm font-bold transition; } .input { @apply rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-indigo-400; } .stat-pill { @apply rounded-full bg-slate-900 px-3 py-1.5 font-semibold ring-1 ring-slate-800; } }

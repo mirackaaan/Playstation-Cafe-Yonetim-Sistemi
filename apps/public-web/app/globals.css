@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+a { transition: color .15s ease; }
+a:hover { color: #a3e635; }
+.section-label { font-size: .75rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #a1a1aa; }

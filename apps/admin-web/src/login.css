@@ -1,0 +1,289 @@
+/* =============================================
+   CAVE PlayStation Cafe — Login Page
+   Ayrı CSS dosyası: login.css
+   ============================================= */
+
+/* ─── Keyframe Animations ─────────────────── */
+
+/* Arka planda yavaş sürünen neon ışık tarama */
+@keyframes bgNeonSweep {
+  0%   { opacity: 0.55; transform: scale(1.04) translateX(0px); }
+  25%  { opacity: 0.65; transform: scale(1.06) translateX(-8px); }
+  50%  { opacity: 0.55; transform: scale(1.04) translateX(0px); }
+  75%  { opacity: 0.60; transform: scale(1.05) translateX(8px); }
+  100% { opacity: 0.55; transform: scale(1.04) translateX(0px); }
+}
+
+/* Pembe/cyan neon pulse — logo çevresindeki glow */
+@keyframes bgGlowPulse {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* CAVE metni sürekli kayan gradyan */
+@keyframes caveGradientMove {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Kart hover koyulaşma */
+@keyframes loginCardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Overlay pulse — hafif neon ışık dalgası */
+@keyframes overlayPulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.88; }
+  100% { opacity: 1; }
+}
+
+
+/* ─── Layout ──────────────────────────────── */
+
+.login {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.25rem;
+  overflow: hidden;
+  background: #0b0007;
+}
+
+
+/* ─── Background Logo ─────────────────────── */
+
+.login-logo-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.login-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.5) saturate(1.3);
+  animation: bgNeonSweep 12s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Neon renk geçiş katmanı — logonun pembe/cyan/kırmızı tonlarına uyumlu */
+.login-logo-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(232, 18, 76, 0.18) 0%,
+    rgba(0, 200, 255, 0.10) 30%,
+    rgba(120, 0, 40, 0.22) 55%,
+    rgba(0, 180, 255, 0.12) 75%,
+    rgba(232, 18, 76, 0.20) 100%
+  );
+  background-size: 300% 300%;
+  animation: bgGlowPulse 8s ease-in-out infinite;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+
+/* ─── Dark Overlay (orta açık, kenarlarda koyu) ── */
+
+.login::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse 70% 70% at 50% 48%,
+    rgba(8, 2, 12, 0.38) 0%,
+    rgba(8, 2, 12, 0.65) 55%,
+    rgba(5, 0, 10, 0.88) 100%
+  );
+  animation: overlayPulse 10s ease-in-out infinite;
+  pointer-events: none;
+}
+
+
+/* ─── Login Card ──────────────────────────── */
+
+.login-card {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 400px);
+  display: grid;
+  gap: 1.15rem;
+
+  /* Başlangıçta hafif — hover'da koyulaşır */
+  background: rgba(12, 6, 20, 0.42);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 22px;
+  padding: 2.4rem 2.1rem;
+
+  box-shadow:
+    0 0 0 1px rgba(232, 18, 76, 0.12),
+    0 20px 50px rgba(0, 0, 0, 0.45),
+    0 0 60px rgba(232, 18, 76, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+  text-align: center;
+  animation: loginCardIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  /* Hover geçişi */
+  transition:
+    background 0.45s ease,
+    box-shadow 0.45s ease,
+    border-color 0.45s ease;
+}
+
+.login-card:hover {
+  background: rgba(12, 6, 20, 0.78);
+  border-color: rgba(232, 18, 76, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(232, 18, 76, 0.25),
+    0 28px 70px rgba(0, 0, 0, 0.65),
+    0 0 80px rgba(232, 18, 76, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+
+/* ─── Brand Header ────────────────────────── */
+
+.eyebrow-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+/* CAVE — sürekli kayan kırmızı/pembe/cyan gradient */
+.login-brand-name {
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  line-height: 1;
+
+  /* Gradient: logodaki renklerden ilham — kırmızı → pembe → cyan → kırmızı döngü */
+  background: linear-gradient(
+    90deg,
+    #e8124c 0%,
+    #ff6eb0 20%,
+    #00c8ff 40%,
+    #e8124c 60%,
+    #ff6eb0 80%,
+    #00c8ff 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  /* Sürekli sola kayan animasyon — C'den E'ye, E'den C'ye */
+  animation: caveGradientMove 3.5s linear infinite;
+
+  filter: drop-shadow(0 0 16px rgba(232, 18, 76, 0.45));
+}
+
+/* Yönetici Girişi başlığı — kaldırıldı, sadece alt paragraf kalıyor */
+.eyebrow-logo h1 {
+  display: none;
+}
+
+.eyebrow-logo p {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: rgba(200, 185, 210, 0.75);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+
+/* ─── Form Elements ───────────────────────── */
+
+.login-card input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #f0e8f8;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  width: 100%;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.login-card input:focus {
+  border-color: rgba(232, 18, 76, 0.55);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 3px rgba(232, 18, 76, 0.15);
+  outline: none;
+}
+
+.login-card input::placeholder {
+  color: rgba(180, 160, 195, 0.45);
+}
+
+
+
+/* ─── Button ──────────────────────────────── */
+
+.login-card button {
+  background: linear-gradient(135deg, #c8003c 0%, #e8124c 50%, #ff4a7a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 20px rgba(200, 0, 60, 0.35);
+}
+
+.login-card button:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(200, 0, 60, 0.5);
+}
+
+.login-card button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* ─── Error & hint ────────────────────────── */
+
+.login-card .error {
+  color: #ff8aab;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.login-card small:not(.error) {
+  color: rgba(160, 140, 175, 0.5);
+  font-size: 0.78rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.login-card code {
+  color: rgba(0, 200, 255, 0.75);
+  font-family: monospace;
+  background: rgba(0, 200, 255, 0.08);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}

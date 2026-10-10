@@ -1,0 +1,31 @@
+node_modules/
+dist/
+.next/
+target/
+*.db
+*.db-shm
+*.db-wal
+apps/salon-server/data/*.sqlite
+apps/salon-server/data/backups/
+.env*
+!.env.example
+# Local databases and backups
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+backups/
+
+# Logs
+*.log
+
+# Review and simulation artifacts
+review/
+
+# Build and test output
+build/
+coverage/
+backups/
+review/
+*.log
+=
