@@ -1,7 +1,5 @@
-if (process.env.NODE_ENV === "production") {
-  throw new Error("Geliştirme başlatıcısı üretim ortamında kullanılamaz.");
-}
+import { applyDevelopmentAdminPassword } from "./admin-password.mjs";
 
-process.env.SALON_ADMIN_PASSWORD = "cave123";
+applyDevelopmentAdminPassword();
 
 await import("./server.mjs");

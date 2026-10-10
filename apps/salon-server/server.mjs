@@ -7,12 +7,13 @@ import express from "express";
 import initSqlJs from "sql.js";
 import { createDatabaseStorage } from "./database-storage.mjs";
 import { allocateSessionSettlement } from "./payment-allocation.mjs";
+import { resolveAdminPassword } from "./admin-password.mjs";
 import { calculateAmount as sharedAmount, segmentPrice, tariffRates, rateForControllers } from "../shared/pricing.mjs";
 
 const require = createRequire(import.meta.url);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const databasePath = process.env.SALON_DB_PATH ?? path.join(here, "data", "salon.sqlite");
-const adminPassword = process.env.SALON_ADMIN_PASSWORD;
+const adminPassword = resolveAdminPassword();
 const port = Number(process.env.PORT ?? 3001);
 const paymentMethods = new Set(["nakit", "kredi_karti"]);
 const maxPrice = 100_000;
@@ -51,9 +52,6 @@ function validateStartedAt(value) {
   return customStart.toISOString();
 }
 
-if (!adminPassword) {
-  throw new Error("SALON_ADMIN_PASSWORD tanımlanmalıdır; varsayılan parola ile başlatma engellendi.");
-}
 fs.mkdirSync(path.dirname(databasePath), { recursive: true });
 
 const SQL = await initSqlJs({ locateFile: () => require.resolve("sql.js/dist/sql-wasm.wasm") });

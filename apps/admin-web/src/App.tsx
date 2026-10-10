@@ -407,7 +407,6 @@ function Login({ onLogin }: { onLogin: (token: string) => void }) {
         />
         {error && <small className="error">{error}</small>}
         <button disabled={busy}>{busy ? "Kontrol ediliyor…" : "Giriş Yap"}</button>
-        <small>İlk kurulum şifresi: <code>cave123</code></small>
       </form>
 
     </main>

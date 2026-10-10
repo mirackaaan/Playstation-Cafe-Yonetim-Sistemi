@@ -1,79 +1,120 @@
-# Cave Salon — web tabanlı yönetim
+# Cave Salon
 
-Salon bilgisayarında çalışan yerel veritabanlı web yönetim paneli ve `cave.com.tr` kamu sitesi. Aynı yönetim adresinde geniş ekranlar tam yönetim panelini, telefonlar yalnızca canlı özet ekranını görür.
+PlayStation kafe için yerel yönetim paneli: masalar, oturumlar, tarife, adisyon, kasa ve raporlar salon bilgisayarındaki SQLite dosyasında tutulur. `cave.com.tr` kamu sitesi bu yönetim verisine bağlanmaz.
 
-## Veri mimarisi
+Proje henüz canlıya alınmamıştır. Aşağıdaki komutlar geliştirme ve aynı makinede deneme içindir.
 
-- `apps/salon-server`: Salon bilgisayarında çalışan Node.js sunucusu. SQLite uyumlu veritabanı dosyası `apps/salon-server/data/salon.sqlite` içinde kalır.
-- `apps/admin-web`: Tarayıcıdaki yönetim arayüzü. Bilgisayarda masa/oturum işlemlerini, mobilde yalnızca doluluk ve kasa özetini gösterir.
-- `apps/public-web`: Kamu sitesi; yönetim verisine erişmez.
-- `packages/shared`: Ücret ve süre iş kuralları testleri.
+**Temel özellikler**
 
-Geçmiş oturumlar, kasa verileri ve veritabanı salon bilgisayarında tutulur. Bulut tarafında kalıcı yönetim verisi yoktur.
+- Masa açma/kapama, süreli paket ve süresiz tarife, kol sayısı, masa aktarımı
+- Nakit / kart tahsilat, kısmi ödeme, ücretsiz kapanış, geri alma
+- Adisyon, tezgâh satışı, günlük rapor ve özet
+- Aynı adreste geniş ekranda tam panel, dar ekranda yalnızca canlı özet
 
-Veritabanı kaydı önce aynı dizindeki geçici dosyaya yazılır ve bütünlük kontrolünden sonra asıl dosyanın yerini alır. Sunucu açılırken ve saatte bir yapılan kontrolde, son otomatik yedek en az 24 saat önceyse yeni bir yedek oluşturulur. Yedek SQLite bütünlük kontrolünden geçirilir; son 14 otomatik yedek saklanır. Varsayılan konum `apps/salon-server/data/backups` dizinidir. Ayrı bir diske yedek almak için sunucuyu başlatmadan önce `SALON_BACKUP_DIR` ortam değişkenini o dizine ayarlayın. Aynı diskteki yedekler disk arızasına karşı koruma sağlamaz.
+## Depo yapısı
 
-## İlk çalıştırma
+| Klasör | Görev |
+| --- | --- |
+| `apps/salon-server` | Express API ve SQLite. Varsayılan dosya: `apps/salon-server/data/salon.sqlite` |
+| `apps/admin-web` | Yönetim arayüzü (React, Vite). Derlenmiş `dist` dosyasını sunucu statik olarak verir |
+| `apps/shared` | Canlı ücret motoru (`pricing.mjs`); sunucu ve yönetim paneli bunu kullanır |
+| `packages/shared` | Ayrı ücret örnekleri ve Vitest; salon sunucusu bunu import etmez |
+| `apps/public-web` | Next.js kamu sitesi; yönetim API’sine bağlanmaz |
+| `apps/salon-desktop` | Eski Tauri denemesi. Güncel yol `admin-web` + `salon-server` |
 
-Bu bilgisayarda PowerShell betik kısıtı varsa `npm` yerine `npm.cmd` kullanın.
+Bulutta kalıcı kasa, oturum veya müşteri kaydı yoktur. Kamu sitesindeki doluluk kutusu henüz canlı veri göstermez (`docs/data-boundary.md`).
+
+## Gereksinimler
+
+- Node.js 22 veya üzeri (`package.json` → `engines.node`)
+- Komutlar **proje kökünde** (`README.md` ile aynı klasör)
+- Windows PowerShell `npm` betiğini engellerse `npm.cmd` kullanın
+
+## Normal başlatma
+
+Yerel salon denemesi. Geliştirme parolası bu yolda varsayılan değildir.
 
 ```powershell
-cd C:\Users\Kaan\Documents\Codex\2026-08-03\files-mentioned-by-the-user-proje
 npm.cmd install
-npm.cmd run build --workspace=@cave/admin-web
-npm.cmd run start:salon
 ```
 
-Sunucu başlamadan önce `SALON_ADMIN_PASSWORD` tanımlanmalıdır; varsayılan parola artık yoktur. Örnek:
+```powershell
+npm.cmd run build --workspace=@cave/admin-web
+```
 
 ```powershell
 $env:SALON_ADMIN_PASSWORD = "uzun-ve-rastgele-bir-sifre"
+```
+
+```powershell
 npm.cmd run start:salon
 ```
 
-Ardından aynı bilgisayarda `http://127.0.0.1:3001` adresini açın. İlk geliştirme şifresi `cave123`’tür.
+`start:salon` `node server.mjs` çalıştırır. `SALON_ADMIN_PASSWORD` yoksa, boşsa veya yalnızca boşluksa süreç başlamaz. Geliştirme parolasını bu komutla vermeyin.
 
-> Canlı kullanımdan önce güçlü bir şifre tanımlayın. Örneğin PowerShell’de:
->
-> ```powershell
-> $env:SALON_ADMIN_PASSWORD = "uzun-ve-rastgele-bir-sifre"
-> npm.cmd run start:salon
-> ```
+Tarayıcı: `http://127.0.0.1:3001` (sunucu `127.0.0.1`, varsayılan `PORT=3001`). Giriş, az önce verdiğiniz değişkendir. Değişken her yeni terminalde yeniden yazılır.
 
-Bu ortam değişkeni her yeni terminalde yeniden girilmelidir; kalıcı dağıtımda Windows hizmeti veya güvenli sistem ayarı olarak tanımlayın.
+Hatalı giriş: varsayılan 15 dakikada 8 deneme sonrası `429`. `SALON_LOGIN_MAX_ATTEMPTS` ve `SALON_LOGIN_WINDOW_MS` ile değişir. Sayaç bellek içindedir; yeniden başlatınca sıfırlanır. `trust proxy` kapalıdır; `X-Forwarded-For` kullanılmaz.
 
-Hatalı girişler varsayılan olarak 15 dakikada 8 denemeden sonra `429` döner. Eşik `SALON_LOGIN_MAX_ATTEMPTS`, pencere `SALON_LOGIN_WINDOW_MS` ile değiştirilir. Sayaç süreç belleğindedir; sunucu yeniden başlayınca sıfırlanır ve birden fazla süreç paylaşmaz. İstemci `X-Forwarded-For` başlığına güvenilmez (`trust proxy` kapalıdır).
+## Geliştirme
 
-Geliştirme sırasında iki terminal kullanın:
+İki terminal, proje kökü.
+
+Terminal 1:
 
 ```powershell
-# Terminal 1 (geliştirme giriş şifresi: cave123)
 npm.cmd run dev:server
+```
 
-# Terminal 2
+Terminal 2:
+
+```powershell
 npm.cmd run dev:admin
 ```
 
-Yönetim ekranı `http://localhost:5173`, API ise `http://127.0.0.1:3001` adresinde olur.
+Yerel giriş bilgisi `dev.mjs` / `admin-password.mjs` içindedir; yalnızca `dev:server` ile geçerlidir. `NODE_ENV=production` iken `dev:server` başlamaz. `SALON_ALLOW_DEV_PASSWORD` yalnızca bu başlatıcının koyduğu işarettir; `start:salon` onu açmaz ve geliştirme parolasını kabul etmez.
 
-`dev:server` yalnızca geliştirme için geçici `cave123` şifresini kullanır. `start:salon` için `SALON_ADMIN_PASSWORD` tanımlama zorunluluğu devam eder; canlı kullanımdan önce güçlü bir şifre seçin.
+- Arayüz: `http://localhost:5173` (Vite; `/api` → `http://127.0.0.1:3001`)
+- API: `http://127.0.0.1:3001`
 
-## Ekran davranışı
+Kamu sitesi için ayrı olarak `npm.cmd run dev:web` vardır.
 
-- **768 px ve üzeri:** Masa ekleme, başlatma/durdurma ve saatlik ücret ayarı.
-- **768 px altı:** Açık masa sayısı, dolu/boş sayıları, açık oturumların anlık tutarı ve günlük kazanç. İşlem butonları görünmez.
+## Ekran
 
-## Uzaktan erişim (VPN olmadan)
+`apps/admin-web` `window.innerWidth <= 768` ile mobil özeti açar.
 
-Salon bilgisayarında çalışan servisi doğrudan modemden açmayın. `cloudflared` ile `yonetim.cave.com.tr` alan adını yerel `http://127.0.0.1:3001` adresine bağlayın ve Cloudflare Access’te yalnızca izinli e-posta adreslerini OTP ile kabul edin. Bu bağlantı için dışarıdan port açılması gerekmez.
+- **769 px ve üzeri:** masalar, oturum ve kasa işlemleri
+- **768 px ve altı:** açık/dolu/boş sayıları, anlık tutar, günlük kazanç; işlem butonları yok
 
-Cloudflare Access, uygulama girişinden önce bir güvenlik katmanıdır; uygulamanın kendi güçlü şifresi de zorunlu kalmalıdır. Salon bilgisayarı açık ve internete bağlı olmalıdır.
+## Veri ve yedek
+
+Yazma: geçici dosya → bütünlük kontrolü (`PRAGMA integrity_check`) → asıl SQLite. Açılışta ve her saat `backupIfDue` çalışır; son otomatik yedek 24 saatten yeniyse yeni yedek alınmaz. Yedek de bütünlük kontrolünden geçer. En fazla 14 otomatik yedek tutulur. Varsayılan dizin: `apps/salon-server/data/backups`. Farklı disk için başlatmadan önce `SALON_BACKUP_DIR`. Aynı disk yedeği disk arızasına karşı koruma değildir.
+
+## Uzaktan erişim
+
+Bu depoda Cloudflare Tunnel yapılandırması yoktur. Canlıda salon sürecini modemden port açarak vermeyin. Önerilen kurulum: `cloudflared` ile bir host adını `http://127.0.0.1:3001` adresine bağlamak ve Cloudflare Access ile izinli e-posta + OTP. Access, uygulama şifresinin yerini tutmaz. Salon bilgisayarı açık ve ağda olmalıdır.
 
 ## Kontrol
 
+Proje kökünde:
+
 ```powershell
 npm.cmd run build
+```
+
+```powershell
 npm.cmd test
 ```
 
-`apps/salon-desktop` önceki Tauri denemesidir; güncel kullanım yolu `apps/admin-web` + `apps/salon-server`dır.
+`build` workspace derlemelerini çalıştırır (`admin-web`, `public-web`, `salon-desktop`; sunucunun ayrı build betiği yoktur).
+
+## Canlıya geçiş
+
+Henüz yapılmadı.
+
+- Geliştirme başlatıcısındaki parolayı canlıda kullanmayın; güçlü, benzersiz yönetici parolası seçin
+- `SALON_ADMIN_PASSWORD` güvenli ortam / Windows hizmeti (kaynağa ve Git’e yazmayın)
+- Canlı süreçte `dev:server` kullanmayın
+- `start:salon` + sizin parolanız
+- `npm.cmd test` ve `npm.cmd run build` yeniden
+- Tunnel ve Access ayarlarını ayrı doğrulayın

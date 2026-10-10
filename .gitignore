@@ -1,4 +1,6 @@
 node_modules/
+.DS_Store
+Thumbs.db
 dist/
 .next/
 target/
@@ -19,13 +21,12 @@ backups/
 # Logs
 *.log
 
+# Internal QA (local only; not for public GitHub)
+QA_SIMULATION_REPORT.md
+
 # Review and simulation artifacts
 review/
 
 # Build and test output
 build/
 coverage/
-backups/
-review/
-*.log
-=
